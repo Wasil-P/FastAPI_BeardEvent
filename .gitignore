@@ -1,7 +1,7 @@
 .venv
 .env
 .idea
-.db
+beard_event.db
 __pycache__
 alembic/__pycache__/
 alembic/versions/
