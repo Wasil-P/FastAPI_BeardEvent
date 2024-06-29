@@ -1,0 +1,13 @@
+.venv
+.env
+.idea
+.db
+__pycache__
+alembic/__pycache__/
+alembic/versions/
+controllers/__pycache__/
+models/__pycache__/
+routers/__pycache__/
+static/__pycache__/
+templates/__pycache__/
+views/__pycache__/

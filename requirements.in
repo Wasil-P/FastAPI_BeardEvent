@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+jinja2
+fastapi-login
+passlib[bcrypt]
+python-multipart
+SQLAlchemy
+alembic
+python-dotenv
