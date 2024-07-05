@@ -1,30 +1,31 @@
+from .model import StatusEnum
+
 from pydantic import BaseModel, Field
-from typing import List, Optional
 from datetime import datetime
-from model import StatusEnum
 
 
 class UserBase(BaseModel):
     username: str
     email: str
-    password: str
     phone: str | None = None
-    notice: bool
 
 
 class User(UserBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserCreate(UserBase):
-    pass
+    password: str
+    notice: bool = Field(default=True)
 
 
 class EventBase(BaseModel):
     name: str
+    author: User
+    date_creation: datetime = datetime.now()
     event_date: datetime
     place: str
     about: str
@@ -32,17 +33,29 @@ class EventBase(BaseModel):
 
 class Event(EventBase):
     id: int
-    date_creation: datetime = datetime.now()
-    author: User
+
+    class Config:
+        from_attributes = True
+
+
+class EventCreate(EventBase):
+    pass
 
 
 class InvitationBase(BaseModel):
     name: str
-
-
-class Invitation(InvitationBase):
-    id: int
     event: Event
     inviter: User
     invited: User
     status: StatusEnum = Field(default=StatusEnum.NO_RESPONSE)
+
+
+class Invitation(InvitationBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
+class InvitationCreate(InvitationBase):
+    pass

@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import session, sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
+from contextlib import contextmanager
 
 SQLA_DB = "sqlite:///./beard_event.db"
 
@@ -11,6 +12,7 @@ SessionLocal = sessionmaker(
     bind=engine
 )
 
+
 class DBContext:
     def __init__(self):
         self.db = SessionLocal()
@@ -20,3 +22,8 @@ class DBContext:
 
     def __exit__(self, et, ev, traceback):
         self.db.close()
+
+
+def get_db() -> Session:
+    with DBContext() as db:
+        yield db

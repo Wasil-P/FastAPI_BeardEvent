@@ -33,7 +33,7 @@ class Event(Base):
     author_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
     author = relationship("User", back_populates="events")
-    invitations = relationship("Invitation", back_populates="event")
+    invitations = relationship("Invitation", back_populates="events")
 
 
 class StatusEnum(str, Enum):
