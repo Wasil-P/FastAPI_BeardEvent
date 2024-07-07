@@ -4,7 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
-from routers.users import router as users_router
+from routers.users_routers import router as users_router
 
 
 app = FastAPI()

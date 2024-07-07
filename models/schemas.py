@@ -1,12 +1,12 @@
 from .model import StatusEnum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr, constr
 from datetime import datetime
 
 
 class UserBase(BaseModel):
     username: str
-    email: str
+    email: EmailStr
     phone: str | None = None
 
 
@@ -18,7 +18,9 @@ class User(UserBase):
 
 
 class UserCreate(UserBase):
-    password: str
+    password: constr(
+        min_length=8
+    )
     notice: bool = Field(default=True)
 
 

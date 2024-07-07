@@ -1,8 +1,12 @@
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from contextlib import contextmanager
+from dotenv import load_dotenv
 
-SQLA_DB = "sqlite:///./beard_event.db"
+load_dotenv()
+
+SQLA_DB = os.getenv("FASTAPI_DB_URL")
 
 engine = create_engine(SQLA_DB, connect_args={"check_same_thread": False})
 

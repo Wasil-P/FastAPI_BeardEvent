@@ -2,8 +2,10 @@ fastapi
 uvicorn[standard]
 jinja2
 fastapi-login
-passlib[bcrypt]
+passlib[bcrypt]==1.7.4
+bcrypt==3.2.0
 python-multipart
 SQLAlchemy
 alembic
 python-dotenv
+email-validator
