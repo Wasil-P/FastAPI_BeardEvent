@@ -24,6 +24,11 @@ class UserCreate(UserBase):
     notice: bool = Field(default=True)
 
 
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+
 class EventBase(BaseModel):
     name: str
     author: User
