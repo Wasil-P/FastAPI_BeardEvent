@@ -52,3 +52,10 @@ def login(login_request: UserLogin, db: Session = Depends(get_db)):
     response = JSONResponse({"message": "Login successful"}, status_code=200)
     manager.set_cookie(response, access_token)
     return response
+
+
+@router.get("/logout")
+def logout():
+    response = JSONResponse({"message": "Logout successful"}, status_code=200)
+    manager.set_cookie(response, None)
+    return response
