@@ -1,4 +1,3 @@
-from models.db import get_db
 from models.model import User
 from models.schemas import UserCreate
 

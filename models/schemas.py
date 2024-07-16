@@ -31,7 +31,7 @@ class UserLogin(BaseModel):
 
 class EventBase(BaseModel):
     name: str
-    author: User
+    author_id: int
     date_creation: datetime = datetime.now()
     event_date: datetime
     place: str
@@ -51,9 +51,9 @@ class EventCreate(EventBase):
 
 class InvitationBase(BaseModel):
     name: str
-    event: Event
-    inviter: User
-    invited: User
+    event_id: int
+    inviter_id: int
+    invited_id: int
     status: StatusEnum = Field(default=StatusEnum.NO_RESPONSE)
 
 

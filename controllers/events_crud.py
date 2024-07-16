@@ -1,5 +1,3 @@
-
-
 from models.model import Event
 from models.schemas import User, EventCreate
 
@@ -21,6 +19,11 @@ def get_events_all(db: Session, skip: int = 0, limit: int = 10):
 def get_event_by_id(db: Session, id: int):
     event = db.query(Event).filter(Event.id == id).first()
     return event
+
+
+def get_events_author_by_user(db: Session, user_id: int):
+    events = db.query(Event).filter(Event.author_id == user_id).all()
+    return events
 
 
 def create_new_event(db: Session, event: EventCreate, user: User):

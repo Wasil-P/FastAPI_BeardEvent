@@ -1,18 +1,25 @@
-from controllers.users_crud import get_users, create_user, get_user_username, authenticate_user
 from models.db import get_db, DBContext
 from models.schemas import User, UserCreate, UserLogin
+from controllers.users_crud import (
+                    get_user_username,
+                    get_users,
+                    create_user,
+                    authenticate_user)
 
 import os
+from dotenv import load_dotenv
 from datetime import timedelta
 from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from fastapi_login import LoginManager
-from dotenv import load_dotenv
 from fastapi.responses import JSONResponse
 
 load_dotenv()
-manager = LoginManager(os.getenv("SECRET_KEY"), token_url="/login", use_cookie=True)
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("No SECRET_KEY set for LoginManager")
+manager = LoginManager(os.getenv("SECRET_KEY"), token_url="/users/login", use_cookie=True)
 manager.cookie_name = "auth"
 
 router = APIRouter()
