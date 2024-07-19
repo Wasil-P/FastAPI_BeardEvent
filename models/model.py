@@ -45,7 +45,8 @@ class StatusEnum(str, Enum):
 class Invitation(Base):
     __tablename__ = 'invitations'
     id = Column(Integer, primary_key=True, index=True, nullable=False)
-    event = Column(Integer, ForeignKey('events.id'), nullable=False)
+    name = Column(String, index=True, nullable=False)
+    event_id = Column(Integer, ForeignKey('events.id'), nullable=False)
     inviter_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     invited_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     status = Column(String, default=StatusEnum.NO_RESPONSE.value)

@@ -65,4 +65,5 @@ class Invitation(InvitationBase):
 
 
 class InvitationCreate(InvitationBase):
-    pass
+    class Config:
+        from_attributes=True
