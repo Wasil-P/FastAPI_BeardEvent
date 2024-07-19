@@ -1,4 +1,3 @@
-from models.db import get_db
 from models.model import User
 from models.schemas import UserCreate
 
@@ -50,7 +49,8 @@ def create_user(db: Session, user: UserCreate):
         username=user.username,
         phone=user.phone,
         email=user.email,
-        password=hash_password
+        password=hash_password,
+        notice=user.notice,
     )
     db.add(db_user)
     db.commit()
@@ -69,3 +69,9 @@ def authenticate_user(username: str, password: str, db: Session):
                             , detail='Wrong password!')
     return user
 
+
+def get_list_user_notice(db: Session, user_id: int):
+    list_user_notice = (db.query(User).
+                        filter(User.notice == True,  User.id != user_id).
+                        all())
+    return list_user_notice
