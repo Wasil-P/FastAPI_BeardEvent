@@ -9,3 +9,5 @@ SQLAlchemy
 alembic
 python-dotenv
 email-validator
+yagmail
+pytz

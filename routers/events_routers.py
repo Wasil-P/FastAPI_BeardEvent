@@ -1,6 +1,16 @@
+from typing import List
+from sqlalchemy.orm import Session
+from starlette.responses import JSONResponse
+from fastapi import APIRouter, Depends
+
 from models.db import get_db
 from routers.users_routers import manager
-from models.schemas import User, Event, EventCreate, InvitationCreate
+from models.schemas import (
+    User,
+    Event,
+    EventCreate,
+    InvitationCreate,
+    SMTPSettings)
 from controllers.events_crud import (
     get_events_all,
     get_event_by_id,
@@ -9,11 +19,6 @@ from controllers.events_crud import (
 from controllers.invitation_crud import create_invitation, get_invitation_by_user
 from controllers.users_crud import get_list_user_notice, get_user
 from controllers.email_sender import send_email_invitation
-
-from typing import List
-from sqlalchemy.orm import Session
-from starlette.responses import JSONResponse
-from fastapi import APIRouter, Depends
 
 
 router = APIRouter()
@@ -34,6 +39,7 @@ def get_event(ev_id: int, db: Session = Depends(get_db)):
 @router.post("/{ev_id}", response_model=InvitationCreate, status_code=201)
 def send_invitation_from_user_request(invitation: InvitationCreate,
                                       ev_id: int,
+                                      smtp_settings: SMTPSettings,
                                       db: Session = Depends(get_db),
                                       user: User = Depends(manager)):
         if not user:
@@ -56,11 +62,20 @@ def send_invitation_from_user_request(invitation: InvitationCreate,
             event_id=ev_id,
             user=user,
             invitation=invitation,
-            invited_id=invitation.invited_id)
+            invited_id=invitation.invited_id,
+        )
 
         if not new_invitation:
             return JSONResponse(status_code=401, content={"detail": "Invitation not send"})
-        send_email_invitation()
+        invited_user = get_user(db=db, id=invitation.invited_id)
+        send_email_invitation(
+            inviter_user=user,
+            invited_user=invited_user,
+            invitation=new_invitation,
+            smtp_email=user.email,
+            smtp_password=smtp_settings.smtp_password,
+            db=db,
+        )
 
         return new_invitation
 

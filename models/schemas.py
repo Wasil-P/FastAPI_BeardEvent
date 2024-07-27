@@ -67,3 +67,8 @@ class Invitation(InvitationBase):
 class InvitationCreate(InvitationBase):
     class Config:
         from_attributes=True
+
+
+class SMTPSettings(BaseModel):
+    smtp_username: EmailStr
+    smtp_password: str
