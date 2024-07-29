@@ -17,9 +17,8 @@ from controllers.events_crud import (
     create_new_event,
     get_events_author_by_user)
 from controllers.invitation_crud import create_invitation, get_invitation_by_user
-from controllers.users_crud import get_list_user_notice, get_user
+from controllers.users_crud import get_user_username, get_user
 from controllers.email_sender import send_email_invitation
-
 
 router = APIRouter()
 
@@ -42,42 +41,42 @@ def send_invitation_from_user_request(invitation: InvitationCreate,
                                       smtp_settings: SMTPSettings,
                                       db: Session = Depends(get_db),
                                       user: User = Depends(manager)):
-        if not user:
-            return JSONResponse(status_code=401,
-                                content={"detail": "Not authenticated"})
+    if not user:
+        return JSONResponse(status_code=401,
+                            content={"detail": "Not authenticated"})
 
-        user_from_db = get_user(db=db, id=invitation.invited_id)
-        if not user_from_db:
-            return JSONResponse(status_code=400,
-                                content={"detail": "This user does not exist"})
+    user_from_db = get_user(db=db, id=invitation.invited_id)
+    if not user_from_db:
+        return JSONResponse(status_code=400,
+                            content={"detail": "This user does not exist"})
 
-        invitation_from_db = get_invitation_by_user(db=db,
-                                                    invited_id=invitation.invited_id)
-        if invitation_from_db:
-            return JSONResponse(status_code=400,
-                                content={"detail": "This user has already been invited"})
+    invitation_from_db = get_invitation_by_user(db=db,
+                                                invited_id=invitation.invited_id)
+    if invitation_from_db:
+        return JSONResponse(status_code=400,
+                            content={"detail": "This user has already been invited"})
 
-        new_invitation = create_invitation(
-            db=db,
-            event_id=ev_id,
-            user=user,
-            invitation=invitation,
-            invited_id=invitation.invited_id,
-        )
+    new_invitation = create_invitation(
+        db=db,
+        event_id=ev_id,
+        user=user,
+        invitation=invitation,
+        invited_id=invitation.invited_id,
+    )
 
-        if not new_invitation:
-            return JSONResponse(status_code=401, content={"detail": "Invitation not send"})
-        invited_user = get_user(db=db, id=invitation.invited_id)
-        send_email_invitation(
-            inviter_user=user,
-            invited_user=invited_user,
-            invitation=new_invitation,
-            smtp_email=user.email,
-            smtp_password=smtp_settings.smtp_password,
-            db=db,
-        )
+    if not new_invitation:
+        return JSONResponse(status_code=401, content={"detail": "Invitation not send"})
+    invited_user = get_user(db=db, id=invitation.invited_id)
+    send_email_invitation(
+        inviter_user=user,
+        invited_user=invited_user,
+        invitation=new_invitation,
+        smtp_email=user.email,
+        smtp_password=smtp_settings.smtp_password,
+        db=db,
+    )
 
-        return new_invitation
+    return new_invitation
 
 
 @router.get("/author/my_events", response_model=List[Event], status_code=200)
@@ -108,16 +107,19 @@ def get_event(ev_id: int, db: Session = Depends(get_db), user: User = Depends(ma
 
 @router.post("/author/my_events/{ev_id}", response_model=List[InvitationCreate], status_code=201)
 def send_invitation_from_owner(invitation: InvitationCreate,
-                  ev_id: int,
-                  db: Session = Depends(get_db),
-                  user: User = Depends(manager)):
+                               ev_id: int,
+                               usernames: List[str],
+                               smtp_settings: SMTPSettings,
+                               db: Session = Depends(get_db),
+                               user: User = Depends(manager),
+                               ):
     if not user:
         return JSONResponse(status_code=401, content={"detail": "Not authenticated"})
-    list_user_notice = get_list_user_notice(db=db, user_id=user.id)
 
+    list_users = [get_user_username(db, username) for username in usernames]
     new_invitation_list = []
 
-    for user_from_list in list_user_notice:
+    for user_from_list in list_users:
         new_invitation = create_invitation(
             db=db,
             event_id=ev_id,
@@ -128,9 +130,14 @@ def send_invitation_from_owner(invitation: InvitationCreate,
         if not new_invitation:
             return JSONResponse(status_code=401, content={"detail": "Invitation not send"})
 
-        send_email_invitation()
+        send_email_invitation(
+            inviter_user=user,
+            invited_user=user_from_list,
+            invitation=new_invitation,
+            smtp_email=user.email,
+            smtp_password=smtp_settings.smtp_password,
+            db=db,
+        )
         new_invitation_list.append(new_invitation)
 
     return [InvitationCreate.from_orm(invitation) for invitation in new_invitation_list]
-
-
