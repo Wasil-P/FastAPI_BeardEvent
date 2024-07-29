@@ -1,4 +1,3 @@
-import logging
 import yagmail
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
@@ -6,9 +5,6 @@ from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 from models.schemas import User, Invitation
 from controllers.events_crud import get_event_by_id
-
-logging.basicConfig(level=logging.ERROR)
-logger = logging.getLogger(__name__)
 
 
 def send_email_invitation(
@@ -39,8 +35,7 @@ def send_email_invitation(
 
     try:
         yag.send(to=invited_user.email, subject=subject, contents=body)
-    except Exception as e:
-        logger.error(f"Error sending email: {e}")
+    except Exception:
         raise HTTPException(
             status_code=HTTP_500_INTERNAL_SERVER_ERROR,
             detail='Error sending email'
