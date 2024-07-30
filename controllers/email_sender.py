@@ -1,7 +1,7 @@
 import yagmail
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
+from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_400_BAD_REQUEST
 
 from models.schemas import User, Invitation
 from controllers.events_crud import get_event_by_id
@@ -17,8 +17,13 @@ def send_email_invitation(
 ):
 
     yag = yagmail.SMTP(smtp_email, smtp_password)
-
-    event = get_event_by_id(db, invitation.event_id)
+    try:
+        event = get_event_by_id(db, invitation.event_id)
+    except Exception:
+        raise HTTPException(
+            status_code=HTTP_400_BAD_REQUEST,
+            detail='There is no such event.'
+        )
 
     subject = f"Invitation to an event: {event.name}"
     body = f"""
