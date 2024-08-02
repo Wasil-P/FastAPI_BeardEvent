@@ -15,6 +15,7 @@ class User(Base):
     email = Column(String, index=True, unique=True, nullable=False)
     password = Column(String, nullable=False)
     phone = Column(String)
+    tg_id = Column(Integer, unique=True)
     notice = Column(Boolean, default=True)
 
     events = relationship("Event", back_populates="author")
