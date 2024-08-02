@@ -19,6 +19,7 @@ from controllers.events_crud import (
 from controllers.invitation_crud import create_invitation, get_invitation_by_user
 from controllers.users_crud import get_user_username, get_user
 from controllers.email_sender import send_email_invitation
+from controllers.telegram_sender import send_message_tg
 
 router = APIRouter()
 
@@ -36,7 +37,7 @@ def get_event(ev_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/{ev_id}", response_model=InvitationCreate, status_code=201)
-def send_invitation_from_user_request(invitation: InvitationCreate,
+async def send_invitation_from_user_request(invitation: InvitationCreate,
                                       ev_id: int,
                                       smtp_settings: SMTPSettings,
                                       db: Session = Depends(get_db),
@@ -75,6 +76,15 @@ def send_invitation_from_user_request(invitation: InvitationCreate,
         smtp_password=smtp_settings.smtp_password,
         db=db,
     )
+    tg_id = invited_user.tg_id
+    if tg_id:
+        event = get_event_by_id(db=db, id=ev_id)
+        await send_message_tg(
+            tg_id=tg_id,
+            inviter=user.username,
+            event=event,
+            invitation=new_invitation,
+        )
 
     return new_invitation
 
@@ -106,7 +116,7 @@ def get_event(ev_id: int, db: Session = Depends(get_db), user: User = Depends(ma
 
 
 @router.post("/author/my_events/{ev_id}", response_model=List[InvitationCreate], status_code=201)
-def send_invitation_from_owner(invitation: InvitationCreate,
+async def send_invitation_from_owner(invitation: InvitationCreate,
                                ev_id: int,
                                usernames: List[str],
                                smtp_settings: SMTPSettings,
@@ -138,6 +148,15 @@ def send_invitation_from_owner(invitation: InvitationCreate,
             smtp_password=smtp_settings.smtp_password,
             db=db,
         )
+        tg_id = user_from_list.tg_id
+        if tg_id:
+            event = get_event_by_id(db=db, id=ev_id)
+            await send_message_tg(
+                tg_id=tg_id,
+                inviter=user.username,
+                event=event,
+                invitation=new_invitation,
+            )
         new_invitation_list.append(new_invitation)
 
     return [InvitationCreate.from_orm(invitation) for invitation in new_invitation_list]

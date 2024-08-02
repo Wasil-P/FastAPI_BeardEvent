@@ -4,6 +4,14 @@
 #
 #    pip-compile
 #
+aiofiles==23.2.1
+    # via aiogram
+aiogram==3.10.0
+    # via -r requirements.in
+aiohttp==3.9.5
+    # via aiogram
+aiosignal==1.3.1
+    # via aiohttp
 alembic==1.13.1
     # via -r requirements.in
 amqp==5.2.0
@@ -20,6 +28,7 @@ async-generator==1.10
     # via trio
 attrs==23.2.0
     # via
+    #   aiohttp
     #   outcome
     #   trio
 bcrypt==3.2.0
@@ -27,13 +36,14 @@ bcrypt==3.2.0
     #   -r requirements.in
     #   passlib
 billiard==4.2.0
-    # via celery_sender
+    # via celery
 cachetools==5.4.0
     # via premailer
 celery[redis]==5.4.0
     # via -r requirements.in
 certifi==2024.6.2
     # via
+    #   aiogram
     #   httpcore
     #   httpx
     #   requests
@@ -45,18 +55,18 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via
-    #   celery_sender
+    #   celery
     #   click-didyoumean
     #   click-plugins
     #   click-repl
     #   typer
     #   uvicorn
 click-didyoumean==0.3.1
-    # via celery_sender
+    # via celery
 click-plugins==1.1.1
-    # via celery_sender
+    # via celery
 click-repl==0.3.0
-    # via celery_sender
+    # via celery
 colorama==0.4.6
     # via
     #   click
@@ -79,6 +89,10 @@ fastapi-cli==0.0.4
     # via fastapi
 fastapi-login==1.10.0
     # via -r requirements.in
+frozenlist==1.4.1
+    # via
+    #   aiohttp
+    #   aiosignal
 greenlet==3.0.3
     # via sqlalchemy
 h11==0.14.0
@@ -98,14 +112,17 @@ idna==3.7
     #   httpx
     #   requests
     #   trio
+    #   yarl
 jinja2==3.1.4
     # via
     #   -r requirements.in
     #   fastapi
 kombu==5.3.7
-    # via celery_sender
+    # via celery
 lxml==5.2.2
     # via premailer
+magic-filter==1.0.12
+    # via aiogram
 mako==1.3.5
     # via alembic
 markdown-it-py==3.0.0
@@ -118,6 +135,10 @@ mdurl==0.1.2
     # via markdown-it-py
 more-itertools==10.3.0
     # via cssutils
+multidict==6.0.5
+    # via
+    #   aiohttp
+    #   yarl
 orjson==3.10.5
     # via fastapi
 outcome==1.3.0.post0
@@ -131,7 +152,9 @@ prompt-toolkit==3.0.47
 pycparser==2.22
     # via cffi
 pydantic==2.7.4
-    # via fastapi
+    # via
+    #   aiogram
+    #   fastapi
 pydantic-core==2.18.4
     # via pydantic
 pygments==2.18.0
@@ -139,7 +162,7 @@ pygments==2.18.0
 pyjwt==2.8.0
     # via fastapi-login
 python-dateutil==2.9.0.post0
-    # via celery_sender
+    # via celery
 python-dotenv==1.0.1
     # via
     #   -r requirements.in
@@ -155,7 +178,7 @@ pyyaml==6.0.1
 redis==5.0.8
     # via
     #   -r requirements.in
-    #   celery_sender
+    #   celery
 requests==2.32.3
     # via premailer
 rich==13.7.1
@@ -185,6 +208,7 @@ typer==0.12.3
     # via fastapi-cli
 typing-extensions==4.12.2
     # via
+    #   aiogram
     #   alembic
     #   fastapi
     #   fastapi-login
@@ -193,7 +217,7 @@ typing-extensions==4.12.2
     #   sqlalchemy
     #   typer
 tzdata==2024.1
-    # via celery_sender
+    # via celery
 ujson==5.10.0
     # via fastapi
 urllib3==2.2.2
@@ -205,7 +229,7 @@ uvicorn[standard]==0.30.1
 vine==5.1.0
     # via
     #   amqp
-    #   celery_sender
+    #   celery
     #   kombu
 watchfiles==0.22.0
     # via uvicorn
@@ -215,3 +239,5 @@ websockets==12.0
     # via uvicorn
 yagmail==0.15.293
     # via -r requirements.in
+yarl==1.9.4
+    # via aiohttp

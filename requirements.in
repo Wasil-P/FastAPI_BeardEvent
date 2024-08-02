@@ -13,3 +13,4 @@ yagmail
 pytz
 celery[redis]
 redis
+aiogram
