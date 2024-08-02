@@ -11,3 +11,5 @@ python-dotenv
 email-validator
 yagmail
 pytz
+celery[redis]
+redis
