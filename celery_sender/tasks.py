@@ -1,4 +1,6 @@
+import os
 import yagmail
+from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from celery import shared_task
 from fastapi import HTTPException
@@ -7,9 +9,11 @@ from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 from models.model import Event, Invitation, User
 from models.db import get_db, DBContext
 
+load_dotenv()
 
 @shared_task(ignore_result=True)
-def event_reminder(smtp_email: str, smtp_password: str, ):
+def event_reminder(smtp_email=os.getenv('SMTP_EMAIL'),
+                   smtp_password=os.getenv('SMTP_PASSWORD')):
     with DBContext() as db:
         try:
             events = db.query(Event).filter(Event.event_date > datetime.now()).all()
