@@ -1,23 +1,26 @@
+import os
 from celery import Celery
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def make_celery():
-    celery = Celery(
+    celery_sender = Celery(
         'worker',
-        backend='redis://localhost:6379/0',
-        broker='redis://localhost:6379/0'
+        backend=f"redis://{os.getenv('HOST')}:{os.getenv('REDIS_PORT')}/0",
+        broker=f"redis://{os.getenv('HOST')}:{os.getenv('REDIS_PORT')}/0"
     )
-    celery.conf.update(
-        result_expires=3600,
+    celery_sender.conf.update(
         beat_schedule={
             'add-every-30-seconds': {
-                'task': 'app.tasks.add',
-                'schedule': 30.0,
-                'args': (16, 16)
+                'reminder': 'celery_sender.tasks.event_reminder',
+                'schedule': 30.0
             },
         },
         timezone='UTC',
     )
-    return celery
+    return celery_sender
 
-celery = make_celery()
+
+celery_sender = make_celery()
