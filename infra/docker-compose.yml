@@ -1,5 +1,4 @@
 version: '3.8'
-name: redis_b
 
 services:
 
@@ -11,19 +10,29 @@ services:
       - 6379:6379
 
   worker:
-    build: .
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
     command: celery -A celery_sender worker --loglevel=info
+    working_dir: /app
+    volumes:
+      - ../:/app
     environment:
-      - BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis_broker:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis_broker:6379/0
     depends_on:
       - redis
 
   beat:
-    build: .
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
     command: celery -A celery_sender beat --loglevel=info
+    working_dir: /app
+    volumes:
+      - ../:/app
     environment:
-      - BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis_broker:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis_broker:6379/0
     depends_on:
       - redis
