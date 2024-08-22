@@ -1,9 +1,8 @@
 import os
-import requests
 import asyncio
 from dotenv import load_dotenv
-from aiogram import Bot, Dispatcher, types
-from aiogram.filters.command import Command
+from aiogram import Bot, Dispatcher
+
 
 from models.schemas import Event, Invitation
 

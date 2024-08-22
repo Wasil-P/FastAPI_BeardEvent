@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+
+  redis:
+    container_name: redis_broker
+    image: redis:alpine
+    restart: always
+    ports:
+      - 6379:6379
+
+  worker:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    command: celery -A celery_sender worker --loglevel=info
+    working_dir: /app
+    volumes:
+      - ../:/app
+    environment:
+      - CELERY_BROKER_URL=redis://redis_broker:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis_broker:6379/0
+    depends_on:
+      - redis
+
+  beat:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    command: celery -A celery_sender beat --loglevel=info
+    working_dir: /app
+    volumes:
+      - ../:/app
+    environment:
+      - CELERY_BROKER_URL=redis://redis_broker:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis_broker:6379/0
+    depends_on:
+      - redis
