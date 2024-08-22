@@ -1,0 +1,29 @@
+version: '3.8'
+name: redis_b
+
+services:
+
+  redis:
+    container_name: redis_broker
+    image: redis:alpine
+    restart: always
+    ports:
+      - 6379:6379
+
+  worker:
+    build: .
+    command: celery -A celery_sender worker --loglevel=info
+    environment:
+      - BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+
+  beat:
+    build: .
+    command: celery -A celery_sender beat --loglevel=info
+    environment:
+      - BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
