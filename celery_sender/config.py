@@ -10,12 +10,14 @@ load_dotenv()
 def make_celery():
     celery = Celery(
         'worker',
-        backend=f"redis://{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}/0",
-        broker=f"redis://{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}/0"
+        backend=f"redis://{os.getenv('REDIS_HOST', 'localhost')}:"
+                f"{os.getenv('REDIS_PORT', '6379')}/0",
+        broker=f"redis://{os.getenv('REDIS_HOST', 'localhost')}:"
+               f"{os.getenv('REDIS_PORT', '6379')}/0"
     )
     celery.conf.update(
         beat_schedule={
-            'add-every-30-seconds': {
+            'event-reminders-every-day': {
                 'task': 'celery_sender.tasks.event_reminder',
                 'schedule': crontab(hour="8", minute="0")
             },
