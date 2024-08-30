@@ -1,33 +1,33 @@
 import os
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
 from dotenv import load_dotenv
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 
 load_dotenv()
 
 SQLA_DB = os.getenv("FASTAPI_DB_URL")
 
-engine = create_engine(SQLA_DB, connect_args={"check_same_thread": False})
+async_engine = create_async_engine(SQLA_DB, connect_args={"check_same_thread": False})
 
-SessionLocal = sessionmaker(
+AsyncSessionLocal = async_sessionmaker(
+    bind=async_engine,
     autocommit=False,
     autoflush=False,
-    bind=engine
+    expire_on_commit=False
 )
 
 
-class DBContext:
+class AsyncDBContext:
     def __init__(self):
-        self.db = SessionLocal()
+        self.db = AsyncSessionLocal()
 
-    def __enter__(self):
+    async def __aenter__(self):
         return self.db
 
-    def __exit__(self, et, ev, traceback):
-        self.db.close()
+    async def __aexit__(self, et, ev, traceback):
+        await self.db.close()
 
 
-def get_db() -> Session:
-    with DBContext() as db:
+async def get_db() -> AsyncSession:
+    async with AsyncDBContext() as db:
         yield db
