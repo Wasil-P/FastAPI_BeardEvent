@@ -1,5 +1,5 @@
 from typing import List
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 from fastapi import APIRouter, Depends
 
@@ -25,14 +25,14 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[Event], status_code=200)
-def read_events_all(db: Session = Depends(get_db), skip: int = 0, limit: int = 10):
-    events = get_events_all(db=db, skip=skip, limit=limit)
+async def read_events_all(db: AsyncSession = Depends(get_db), skip: int = 0, limit: int = 10):
+    events = await get_events_all(db=db, skip=skip, limit=limit)
     return events
 
 
 @router.get("/{ev_id}", response_model=Event, status_code=200)
-def get_event(ev_id: int, db: Session = Depends(get_db)):
-    event = get_event_by_id(db=db, id=ev_id)
+async def get_event(ev_id: int, db: AsyncSession = Depends(get_db)):
+    event = await get_event_by_id(db=db, id=ev_id)
     return event
 
 
@@ -40,7 +40,7 @@ def get_event(ev_id: int, db: Session = Depends(get_db)):
 async def send_invitation_from_user_request(invitation: InvitationCreate,
                                       ev_id: int,
                                       smtp_settings: SMTPSettings,
-                                      db: Session = Depends(get_db),
+                                      db: AsyncSession = Depends(get_db),
                                       user: User = Depends(manager)):
     if not user:
         return JSONResponse(status_code=401,
@@ -90,25 +90,25 @@ async def send_invitation_from_user_request(invitation: InvitationCreate,
 
 
 @router.get("/author/my_events", response_model=List[Event], status_code=200)
-def get_events_author(db: Session = Depends(get_db),
+async def get_events_author(db: AsyncSession = Depends(get_db),
                       user: User = Depends(manager)):
     if not user:
         return JSONResponse(status_code=401, content={"detail": "Not authenticated"})
-    events = get_events_author_by_user(db=db, user_id=user.id)
+    events = await get_events_author_by_user(db=db, user_id=user.id)
     return events
 
 
 @router.post("/author/my_events", response_model=EventCreate, status_code=201)
-def create_event(event: EventCreate,
-                 db: Session = Depends(get_db),
+async def create_event(event: EventCreate,
+                 db: AsyncSession = Depends(get_db),
                  user: User = Depends(manager)):
-    new_event = create_new_event(db=db, event=event, user=user)
+    new_event = await create_new_event(db=db, event=event, user=user)
     return new_event
 
 
 @router.get("/author/my_events/{ev_id}", response_model=Event, status_code=200)
-def get_event(ev_id: int, db: Session = Depends(get_db), user: User = Depends(manager)):
-    event = get_event_by_id(db=db, id=ev_id)
+async def get_event(ev_id: int, db: AsyncSession = Depends(get_db), user: User = Depends(manager)):
+    event = await get_event_by_id(db=db, id=ev_id)
     owner_id = event.author_id
     if owner_id == user.id:
         return event
@@ -120,7 +120,7 @@ async def send_invitation_from_owner(invitation: InvitationCreate,
                                ev_id: int,
                                usernames: List[str],
                                smtp_settings: SMTPSettings,
-                               db: Session = Depends(get_db),
+                               db: AsyncSession = Depends(get_db),
                                user: User = Depends(manager),
                                ):
     if not user:

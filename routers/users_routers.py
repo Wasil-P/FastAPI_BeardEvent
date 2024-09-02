@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 from datetime import timedelta
 from typing import List
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
 from fastapi_login import LoginManager
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,7 +29,7 @@ router = APIRouter()
 @manager.user_loader()
 async def get_user(username: str, db: AsyncSession = None):
     if db is None:
-        async with AsyncDBContext as db:
+        async with AsyncDBContext() as db:
             return await get_user_username(db=db, username=username)
     return await get_user_username(db=db, username=username)
 
