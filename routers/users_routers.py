@@ -43,7 +43,7 @@ async def read_users(skip: int = 0, limit: int = 20, db: AsyncSession = Depends(
 @router.post("/register", response_model=UserCreate)
 async def register_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
     await create_user(db=db, user=user)
-    response = JSONResponse({"message": "Login successful"}, status_code=201)
+    response = JSONResponse({"message": "You are registered"}, status_code=201)
     return response
 
 

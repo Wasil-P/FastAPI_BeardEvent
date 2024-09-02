@@ -1,5 +1,5 @@
 import yagmail
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR, HTTP_400_BAD_REQUEST
 
@@ -7,18 +7,18 @@ from models.schemas import User, Invitation
 from controllers.events_crud import get_event_by_id
 
 
-def send_email_invitation(
+async def send_email_invitation(
     inviter_user: User, 
     invited_user: User, 
     invitation: Invitation, 
     smtp_email: str,
     smtp_password: str,
-    db: Session
+    db: AsyncSession
 ):
 
     yag = yagmail.SMTP(smtp_email, smtp_password)
     try:
-        event = get_event_by_id(db, invitation.event_id)
+        event = await get_event_by_id(db, invitation.event_id)
     except Exception:
         raise HTTPException(
             status_code=HTTP_400_BAD_REQUEST,
