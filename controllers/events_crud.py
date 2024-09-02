@@ -3,30 +3,30 @@ from models.schemas import User, EventCreate
 
 import datetime
 from pytz import utc
-from sqlalchemy.orm import Session
-from fastapi import HTTPException, Depends
+from sqlalchemy.future import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import HTTPException
 from starlette.status import HTTP_400_BAD_REQUEST
 
 
-def get_events_all(db: Session, skip: int = 0, limit: int = 10):
-    events = (db.query(Event).
+async def get_events_all(db: AsyncSession, skip: int = 0, limit: int = 10):
+    events = await (db.execute(select(Event).
               filter(Event.event_date >= datetime.datetime.now()).
-              offset(skip).limit(limit).
-              all())
-    return events
+              offset(skip).limit(limit)))
+    return events.scalars().all()
 
 
-def get_event_by_id(db: Session, id: int):
-    event = db.query(Event).filter(Event.id == id).first()
-    return event
+async def get_event_by_id(db: AsyncSession, id: int):
+    event = await db.execute(select(Event).filter(Event.id == id))
+    return event.scalars().first()
 
 
-def get_events_author_by_user(db: Session, user_id: int):
-    events = db.query(Event).filter(Event.author_id == user_id).all()
-    return events
+async def get_events_author_by_user(db: AsyncSession, user_id: int):
+    events = await db.execute(select(Event).filter(Event.author_id == user_id))
+    return events.scalars().all()
 
 
-def create_new_event(db: Session, event: EventCreate, user: User):
+async def create_new_event(db: AsyncSession, event: EventCreate, user: User):
     event_date = event.event_date.astimezone(utc)
     now = datetime.datetime.now().astimezone(utc)
     if event_date <= now:
@@ -40,7 +40,7 @@ def create_new_event(db: Session, event: EventCreate, user: User):
         author_id=user.id,
     )
     db.add(db_event)
-    db.commit()
-    db.refresh(db_event)
+    await db.commit()
+    await db.refresh(db_event)
 
     return db_event

@@ -1,23 +1,22 @@
 from models.model import Invitation as InvitationModel
 from models.schemas import User, InvitationCreate
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 
-
-def get_invitation_by_id(db: Session, id: int):
-    invitation = db.query(InvitationModel).filter(InvitationModel.id == id).first()
-    return invitation
-
-
-def get_invitation_by_user(db: Session, invited_id: int):
-    invitation_by_user = (db.query(InvitationModel).
-                          filter(InvitationModel.invited_id == invited_id).
-                          first())
-    return invitation_by_user
+async def get_invitation_by_id(db: AsyncSession, id: int):
+    invitation = await db.execute(select(InvitationModel).filter(InvitationModel.id == id))
+    return invitation.scalars().first()
 
 
-def create_invitation(db: Session,
+async def get_invitation_by_user(db: AsyncSession, invited_id: int):
+    invitation_by_user = await (db.execute(select(InvitationModel).
+                          filter(InvitationModel.invited_id == invited_id)))
+    return invitation_by_user.scalars().first()
+
+
+async def create_invitation(db: AsyncSession,
                       event_id: int,
                       user: User,
                       invitation: InvitationCreate,
@@ -29,7 +28,7 @@ def create_invitation(db: Session,
         invited_id=invited_id,
     )
     db.add(db_invitation)
-    db.commit()
-    db.refresh(db_invitation)
+    await db.commit()
+    await db.refresh(db_invitation)
 
     return db_invitation

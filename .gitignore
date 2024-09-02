@@ -1,7 +1,7 @@
 .venv
 .env
 .idea
-beard_event.db
+async_beard_event.db
 __pycache__
 alembic/__pycache__/
 alembic/versions/
@@ -10,4 +10,5 @@ models/__pycache__/
 routers/__pycache__/
 static/__pycache__/
 templates/__pycache__/
-views/__pycache__/
+celery_sender/__pycache__/
+celerybeat-schedule
